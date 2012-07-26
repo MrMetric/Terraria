@@ -78,9 +78,10 @@ bool XNAconverter::XNB2WAV(string xnb, string wav)
 		cerr << "Too many shared resources: " << sharedResourcesCount << "\n";
 		return false;
 	}
-	if(br->Read7BitEncodedInt(br->ReadByte()) != 1)
+	int unknown = br->Read7BitEncodedInt(br->ReadByte());
+	if(unknown != 1)
 	{
-		cerr << "Unknown error (" << "" << ")\n";
+		cerr << "Unknown byte is not 1 (" << unknown << ")\n";
 		return false;
 	}
 	// WAVE format
