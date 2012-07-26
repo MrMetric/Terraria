@@ -1,6 +1,26 @@
-#include "Main.h"
+#include <string>
+#include <iostream>
+using namespace std;
 
-// based on code from http://www.terrariaonline.com/threads/tool-terraria-xnb-to-wav-sound-converter.86509/
+#include "BinaryReader.h"
+#include "BinaryWriter.h"
+#include "XNAconverter.h"
+
+/**
+	XNAconverter.cpp
+	This class converts XNA-formatted files to a standard format for use with SDL
+	Functions:
+		XNB2WAV - Converts an XNB sound to WAV
+		XNB2PNG - Converts an XNB image to PNG (incomplete)
+*/
+
+/**
+	XNB2WAV
+	Derived from http://www.terrariaonline.com/threads/86509/
+
+	@arg xnb The XNB file to read
+	@arg wav The WAV file to create
+*/
 bool XNAconverter::XNB2WAV(string xnb, string wav)
 {
 	BinaryReader *br = new BinaryReader(xnb);
@@ -121,6 +141,13 @@ bool XNAconverter::XNB2WAV(string xnb, string wav)
 	return true;
 }
 
+/**
+	XNB2PNG
+
+	@note INCOMPLETE; This will not create a PNG file!
+	@arg xnb The XNB file to read
+	@arg wav The PNG file to create
+*/
 bool XNAconverter::XNB2PNG(string xnb, string png)
 {
 	BinaryReader *br = new BinaryReader(xnb);
