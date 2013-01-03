@@ -1,5 +1,5 @@
-Terraria in C++ !!INCOMPLETE!!
+Terraria in C++ (INCOMPLETE!)
 
-Graphics: SDL and SDL_image
+Graphics: OpenGL
 Input:    SDL
 Audio:    SDL_mixer

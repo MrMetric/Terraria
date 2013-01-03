@@ -1,9 +1,3 @@
-#include <stdio.h> // file operations
-#include <string.h> // strlen
-#include <string>
-#include <sstream> // stringstream
-using namespace std;
-
 #include "BinaryWriter.h"
 
 /**
@@ -21,22 +15,21 @@ using namespace std;
 
 BinaryWriter::BinaryWriter(string s, bool bak)
 {
-	this->IsLoaded = false;
+	this->isLoaded = false;
 	this->fname = s;
 	this->totalBytes = 0;
 	if(bak)
 	{
 		stringstream ss;
 		ss << s << ".bak";
-		remove(ss.str().c_str());
-		rename(s.c_str(), ss.str().c_str());
+		Util::moveFile(s.c_str(), ss.str().c_str(), true);
 	}
 	this->file = fopen(s.c_str(), "ab");
 	if(ferror(this->file))
 	{
 		perror("Error opening file");
 	}
-	else this->IsLoaded = true;
+	else this->isLoaded = true;
 }
 
 void BinaryWriter::addBytes(int i)
@@ -64,7 +57,7 @@ void BinaryWriter::Write7BitEncodedInt(int value)
 
 bool BinaryWriter::WriteByte(unsigned char value)
 {
-	if(!this->IsLoaded) return false;
+	if(!this->isLoaded) return false;
 	addBytes(1);
 	char buf[1];
 	buf[0] = value;
@@ -79,7 +72,7 @@ bool BinaryWriter::WriteByte(unsigned char value)
 
 bool BinaryWriter::WriteBool(bool b)
 {
-	if(!this->IsLoaded) return false;
+	if(!this->isLoaded) return false;
 	addBytes(1);
 	char buf[1];
 	buf[0] = (b?1:0);
@@ -94,7 +87,7 @@ bool BinaryWriter::WriteBool(bool b)
 
 bool BinaryWriter::WriteChar(char c)
 {
-	if(!this->IsLoaded) return false;
+	if(!this->isLoaded) return false;
 	this->totalBytes++;
 	char buf[1];
 	buf[0] = c;
@@ -109,7 +102,7 @@ bool BinaryWriter::WriteChar(char c)
 
 bool BinaryWriter::WriteShort(short i)
 {
-	if(!this->IsLoaded) return false;
+	if(!this->isLoaded) return false;
 	addBytes(2);
 	char buf[2];
 	buf[0] = i;
@@ -126,7 +119,7 @@ bool BinaryWriter::WriteShort(short i)
 
 bool BinaryWriter::WriteInt(int i)
 {
-	if(!this->IsLoaded) return false;
+	if(!this->isLoaded) return false;
 	addBytes(4);
 	char buf[4];
 	buf[0] = i;
@@ -142,9 +135,31 @@ bool BinaryWriter::WriteInt(int i)
 	return true;
 }
 
+bool BinaryWriter::WriteLong(long i)
+{
+	if(!this->isLoaded) return false;
+	addBytes(4);
+	char buf[4];
+	buf[0] = i;
+	buf[1] = (i >> 8);
+	buf[2] = (i >> 16);
+	buf[3] = (i >> 24);
+	buf[4] = (i >> 32);
+	buf[5] = (i >> 40);
+	buf[6] = (i >> 48);
+	buf[7] = (i >> 56);
+	fwrite(buf, 1, 8, this->file);
+	if(ferror(this->file))
+	{
+		perror("Error writing file");
+		return false;
+	}
+	return true;
+}
+
 bool BinaryWriter::WriteFloat(float value)
 {
-	if(!this->IsLoaded) return false;
+	if(!this->isLoaded) return false;
 	addBytes(4);
 	unsigned long p = *(unsigned long *)&value;
 	char buf[4];
@@ -162,11 +177,16 @@ bool BinaryWriter::WriteFloat(float value)
 	return true;
 }
 
-bool BinaryWriter::WriteBytes(unsigned char *c)
+bool BinaryWriter::WriteBytes(unsigned char *c, int len)
 {
-	if(!this->IsLoaded) return false;
-	addBytes(sizeof(c));
-	fwrite(c, 1, sizeof(c), this->file);
+	return this->WriteBytes(c, 0, len);
+}
+
+bool BinaryWriter::WriteBytes(unsigned char *c, int startpos, int len)
+{
+	if(!this->isLoaded) return false;
+	addBytes(len);
+	fwrite(c, 1, len, this->file);
 	if(ferror(this->file))
 	{
 		perror("Error writing file");
@@ -175,10 +195,9 @@ bool BinaryWriter::WriteBytes(unsigned char *c)
 	return true;
 }
 
-bool BinaryWriter::WriteChars(char *c)
+bool BinaryWriter::WriteChars(char *c, int len)
 {
-	if(!this->IsLoaded) return false;
-	int len = strlen(c);
+	if(!this->isLoaded) return false;
 	addBytes(len);
 	fwrite(c, 1, len, this->file);
 	if(ferror(this->file))
@@ -191,7 +210,7 @@ bool BinaryWriter::WriteChars(char *c)
 
 bool BinaryWriter::WriteString(string s)
 {
-	if(!this->IsLoaded) return false;
+	if(!this->isLoaded) return false;
 	int len = s.length();
 	addBytes(len);
 	Write7BitEncodedInt(len);
