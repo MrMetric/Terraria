@@ -1,0 +1,6 @@
+[submodule "BinaryLib"]
+	path = BinaryLib
+	url = https://github.com/MrMetric/BinaryLib.git
+[submodule "libxna"]
+	path = libxna
+	url = https://github.com/MrMetric/libxna.git
